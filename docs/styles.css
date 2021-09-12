@@ -99,10 +99,14 @@ h1 {
   h1 {
     font-size: 50vw;
   }
+  .accent-display {
+    font-size: 3rem;
+  }
 
   #tempo, .play-pause, #timeSignature {
+    padding: 0.25em .35em;
     height: 10rem;
-    font-size: 2rem;
+    font-size: 4rem;
   }
 }
 
