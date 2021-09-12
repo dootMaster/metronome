@@ -39,7 +39,7 @@ h1 {
   justify-content: space-between;
 }
 
-#tempo, .play-pause, #timeSignature {
+#tempo, .play-pause, #timeSignature, #pitch {
   padding: 0.7em 1.4em;
   margin:0 0.25em 0.5em 0.25em;
   border-radius:5px;
@@ -51,6 +51,17 @@ h1 {
   background-color:salmon;
   text-align:center;
   height: 5rem;
+  box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  outline: none;
+  transition: 0.1s all;
+  text-shadow: 7px 6px 12px rgba(0, 0, 0, .5);
+}
+button:active {
+  transform: scale(0.95);
+  /* Scaling button to 0.98 to its original size */
+  box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24);
+  /* Lowering the shadow */
 }
 
 #volume {
@@ -66,6 +77,7 @@ h1 {
   width: 100%;
   height: 5rem;
   cursor: pointer;
+  box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
 }
 #volume::-webkit-slider-thumb {
   margin-top: .5rem;
@@ -76,11 +88,8 @@ h1 {
   border-radius: 5px;
   cursor: pointer;
   -webkit-appearance: none;
+  box-shadow: 7px 6px 14px 1px rgba(0, 0, 0, 0.34);
 }
-#volume:focus::-webkit-slider-runnable-track {
-  background: #fb968b;
-}
-
 
 .time-signature-button-container {
   display: flex;

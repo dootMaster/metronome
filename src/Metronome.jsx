@@ -20,6 +20,7 @@ class Metronome extends React.Component {
       isRunning: false,
       currentNote: 0,
       volume: 1,
+      pitch440On: false,
     };
   }
 
@@ -82,7 +83,7 @@ class Metronome extends React.Component {
     }
 
     start() {
-        if (this.state.isRunning) return;
+        if (this.state.isRunning || this.state.pitch440On) return;
 
         if (this.audioContext == null)
         {
@@ -120,7 +121,7 @@ class Metronome extends React.Component {
     return (
       <div className="metronome-wrapper">
         <h1>{isRunning ? (currentNote !== 0 ? `${currentNote}` : `${timeSignature}`) : `${tempo}`}</h1>
-        <p className="accent-display">Accent: {isRunning ? `${timeSignature} && Tempo: ${tempo}` : `${timeSignature}`}</p>
+        <p className="accent-display">Accent {isRunning ? `${timeSignature} Tempo ${tempo}` : `${timeSignature}`}</p>
         <button className="play-pause" onClick={() => {this.startStop()}}>{!isRunning ? '▶' : '■'}</button>
         <div className="tempo-button-container">
           <button id="tempo" value="-10" onClick={(e) => this.handleSettings(e)}>-10</button>
@@ -133,6 +134,7 @@ class Metronome extends React.Component {
         <div className="timeSignature-button-container">
           <button id="timeSignature" value="-1" onClick={(e) => {this.handleSettings(e)}}>-acc</button>
           <button id="timeSignature" value="+1" onClick={(e) => {this.handleSettings(e)}}>+acc</button>
+          {/* <button id="pitch" onClick={() => this.tuningStartStop()}>pitch</button> */}
           <input type="range" id="volume" min="0" max="2" value={volume} step="0.01" onChange={(e) => {this.handleSettings(e)}} list="middle"></input>
             <datalist id="middle">
               <option value="1"></option>
