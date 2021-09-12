@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 
+//credit to grant james https://github.com/grantjames/metronome/blob/master/metronome.js for the base native js code.
+
 class Metronome extends React.Component {
   audioContext = null;
   notesInQueue = [];
-  currentQuarterNote = 0;
+  currentNote = 0;
   lookahead = 25;
   scheduleAheadTime = 0.1;
   nextNoteTime = 0.0;
-  isRunning = false;
   intervalID = null;
 
   constructor(props) {
@@ -15,78 +16,99 @@ class Metronome extends React.Component {
 
     this.state = {
       tempo: 120,
+      timeSignature: 4,
+      isRunning: false,
+      currentNote: 0,
+      volume: 1,
     };
   }
 
-  handleTempo(e) {
-    this.setState({
-      tempo: e.target.value,
-    });
+  handleSettings(e) {
+    const { id, value } = e.target;
+
+    if(id === 'tempo') {
+      let newTempo = this.state.tempo + parseInt(value);
+      this.setState({
+        [id]: (newTempo <= 280 && newTempo >= 20) ? newTempo : this.state.tempo,
+      });
+    } else if(id === 'volume') {
+      this.setState({
+        [id]: value,
+      })
+    } else {
+      let newTimeSig = this.state.timeSignature + parseInt(value);
+      this.setState({
+        [id]: (newTimeSig <= 7 && newTimeSig >= 0) ? newTimeSig : this.state.timeSignature,
+      })
+    }
   }
 
   nextNote() {
-      // Advance current note and time by a quarter note (crotchet if you're posh)
-      var secondsPerBeat = 60.0 / this.state.tempo; // Notice this picks up the CURRENT tempo value to calculate beat length.
-      this.nextNoteTime += secondsPerBeat; // Add beat length to last beat time
+      var secondsPerBeat = 60.0 / this.state.tempo;
+      this.nextNoteTime += secondsPerBeat;
 
-      this.currentQuarterNote++;    // Advance the beat number, wrap to zero
-      if (this.currentQuarterNote == 4) {
-        this.currentQuarterNote = 0;
+      this.setState({currentNote: this.state.currentNote + 1})
+
+      if (this.state.currentNote % this.state.timeSignature === 0) {
+        this.setState({currentNote: 0});
       }
   }
 
   scheduleNote(beatNumber, time) {
-      // push the note on the queue, even if we're not playing.
-      this.notesInQueue.push({ note: beatNumber, time: time });
+      // this.notesInQueue.push({ note: beatNumber, time: time });
+      const { volume } = this.state;
+      if(volume > 0.05) {
+        const osc = this.audioContext.createOscillator();
+        const envelope = this.audioContext.createGain();
 
-      // create an oscillator
-      const osc = this.audioContext.createOscillator();
-      const envelope = this.audioContext.createGain();
+        osc.frequency.value = ((beatNumber === 0) ? 1200 : 800);
+        envelope.gain.value = volume;
+        envelope.gain.exponentialRampToValueAtTime(volume, time + 0.001);
+        envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
 
-      osc.frequency.value = (beatNumber % 4 == 0) ? 1000 : 800;
-      envelope.gain.value = 1;
-      envelope.gain.exponentialRampToValueAtTime(1, time + 0.001);
-      envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+        osc.connect(envelope);
+        envelope.connect(this.audioContext.destination);
 
-      osc.connect(envelope);
-      envelope.connect(this.audioContext.destination);
-
-      osc.start(time);
-      osc.stop(time + 0.03);
+        osc.start(time);
+        osc.stop(time + 0.03);
+      }
   }
 
   scheduler() {
-        // while there are notes that will need to play before the next interval, schedule them and advance the pointer.
         while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime ) {
-          this.scheduleNote(this.currentQuarterNote, this.nextNoteTime);
+          this.scheduleNote(this.state.currentNote, this.nextNoteTime);
           this.nextNote();
         }
     }
 
     start() {
-        if (this.isRunning) return;
+        if (this.state.isRunning) return;
 
         if (this.audioContext == null)
         {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
 
-        this.isRunning = true;
+        this.setState({
+          isRunning: true,
+          currentNote: 0,
+        })
 
-        this.currentQuarterNote = 0;
         this.nextNoteTime = this.audioContext.currentTime + 0.05;
 
         this.intervalID = setInterval(() => this.scheduler(), this.lookahead);
     }
 
     stop() {
-        this.isRunning = false;
+        this.setState({
+          isRunning: false,
+        });
 
         clearInterval(this.intervalID);
     }
 
     startStop() {
-        if (this.isRunning) {
+        if (this.state.isRunning) {
             this.stop();
         } else {
             this.start();
@@ -94,12 +116,29 @@ class Metronome extends React.Component {
     }
 
   render() {
+    const { tempo, timeSignature, isRunning, currentNote, volume } = this.state;
     return (
-      <>
-        <button onClick={() => {this.startStop()}}>play pause</button>
-        <input type="range" id="tempo" min="30" max="280" value={this.state.tempo} onChange={(e) => this.handleTempo(e)}></input>
-        <div>{this.state.tempo}</div>
-      </>
+      <div className="metronome-wrapper">
+        <h1>{isRunning ? (currentNote !== 0 ? `${currentNote}` : `${timeSignature}`) : `${tempo}`}</h1>
+        <p className="accent-display">Accent: {isRunning ? `${timeSignature} && Tempo: ${tempo}` : `${timeSignature}`}</p>
+        <button className="play-pause" onClick={() => {this.startStop()}}>{!isRunning ? '▶' : '■'}</button>
+        <div className="tempo-button-container">
+          <button id="tempo" value="-10" onClick={(e) => this.handleSettings(e)}>-10</button>
+          <button id="tempo" value="-5" onClick={(e) => this.handleSettings(e)}>-5</button>
+          <button id="tempo" value="-1" onClick={(e) => this.handleSettings(e)}>-1</button>
+          <button id="tempo" value="1" onClick={(e) => this.handleSettings(e)}>+1</button>
+          <button id="tempo" value="5" onClick={(e) => this.handleSettings(e)}>+5</button>
+          <button id="tempo" value="+10" onClick={(e) => this.handleSettings(e)}>+10</button>
+        </div>
+        <div className="timeSignature-button-container">
+          <button id="timeSignature" value="-1" onClick={(e) => {this.handleSettings(e)}}>-acc</button>
+          <button id="timeSignature" value="+1" onClick={(e) => {this.handleSettings(e)}}>+acc</button>
+          <input type="range" id="volume" min="0" max="2" value={volume} step="0.01" onChange={(e) => {this.handleSettings(e)}} list="middle"></input>
+            <datalist id="middle">
+              <option value="1"></option>
+            </datalist>
+        </div>
+      </div>
     )
   }
 }
