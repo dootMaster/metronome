@@ -136,9 +136,6 @@ class Metronome extends React.Component {
           <button id="timeSignature" value="+1" onClick={(e) => {this.handleSettings(e)}}>+acc</button>
           {/* <button id="pitch" onClick={() => this.tuningStartStop()}>pitch</button> */}
           <input type="range" id="volume" min="0" max="2" value={volume} step="0.01" onChange={(e) => {this.handleSettings(e)}} list="middle"></input>
-            <datalist id="middle">
-              <option value="1"></option>
-            </datalist>
         </div>
       </div>
     )
