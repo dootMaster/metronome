@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 
-//credit to grant james https://github.com/grantjames/metronome/blob/master/metronome.js for the base native js code.
-
 class Metronome extends React.Component {
   audioContext = null;
   notesInQueue = [];
@@ -83,7 +81,7 @@ class Metronome extends React.Component {
     }
 
     start() {
-        if (this.state.isRunning || this.state.pitch440On) return;
+        if (this.state.isRunning) return;
 
         if (this.audioContext == null)
         {
