@@ -54,7 +54,6 @@ class Metronome extends React.Component {
   }
 
   scheduleNote(beatNumber, time) {
-      // this.notesInQueue.push({ note: beatNumber, time: time });
       const { volume } = this.state;
       if(volume > 0.05) {
         const osc = this.audioContext.createOscillator();
@@ -74,45 +73,45 @@ class Metronome extends React.Component {
   }
 
   scheduler() {
-        while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime ) {
-          this.scheduleNote(this.state.currentNote, this.nextNoteTime);
-          this.nextNote();
-        }
+    while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime ) {
+      this.scheduleNote(this.state.currentNote, this.nextNoteTime);
+      this.nextNote();
+    }
+  }
+
+  start() {
+    if (this.state.isRunning) return;
+
+    if (this.audioContext == null)
+    {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    start() {
-        if (this.state.isRunning) return;
+    this.setState({
+      isRunning: true,
+      currentNote: 0,
+    })
 
-        if (this.audioContext == null)
-        {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
+    this.nextNoteTime = this.audioContext.currentTime + 0.05;
 
-        this.setState({
-          isRunning: true,
-          currentNote: 0,
-        })
+    this.intervalID = setInterval(() => this.scheduler(), this.lookahead);
+  }
 
-        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+  stop() {
+    this.setState({
+      isRunning: false,
+    });
 
-        this.intervalID = setInterval(() => this.scheduler(), this.lookahead);
+    clearInterval(this.intervalID);
+  }
+
+  startStop() {
+    if (this.state.isRunning) {
+        this.stop();
+    } else {
+        this.start();
     }
-
-    stop() {
-        this.setState({
-          isRunning: false,
-        });
-
-        clearInterval(this.intervalID);
-    }
-
-    startStop() {
-        if (this.state.isRunning) {
-            this.stop();
-        } else {
-            this.start();
-        }
-    }
+  }
 
   render() {
     const { tempo, timeSignature, isRunning, currentNote, volume } = this.state;
@@ -132,7 +131,6 @@ class Metronome extends React.Component {
         <div className="timeSignature-button-container">
           <button id="timeSignature" value="-1" onClick={(e) => {this.handleSettings(e)}}>-acc</button>
           <button id="timeSignature" value="+1" onClick={(e) => {this.handleSettings(e)}}>+acc</button>
-          {/* <button id="pitch" onClick={() => this.tuningStartStop()}>pitch</button> */}
           <input type="range" id="volume" min="0" max="2" value={volume} step="0.01" onChange={(e) => {this.handleSettings(e)}} list="middle"></input>
         </div>
       </div>
