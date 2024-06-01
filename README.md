@@ -1,6 +1,6 @@
 # Leslie's Metronome
 
-This responsive React application allows musicians to keep time as they practice. This uses a combination of setTimeout and Web Audio API's currentTime method in order to keep consistent and usable time. I built this metronome in September 2021 when I was curious about Web Audio API.
+This responsive React application allows musicians to keep time as they practice. This uses a combination of `setTimeout` and Web Audio API's currentTime method in order to keep consistent and usable time. I built this metronome in September 2021 when I was curious about Web Audio API.
 This took me 2 days to build, and I **[deployed it to gitPages here](https://dootmaster.github.io/metronome/)**.
 
 ## Contents
@@ -36,7 +36,7 @@ Install and run this app locally on your machine.
 
 ## Observations
 
-When programming a metronome with JavaScript, the function we would normally reach for might be `setTimeout`. Unfortunately, `setTimeout` on its own is unable to keep time that is consistent enough for practice due to the fact that `setTimeout` and `setInterval` time can be influenced by other processes in the Javascript event loop. . Even without musical training, our ears can hear differences in the milliseconds, and `setTimeout` can be off by at least 40ms. A metronome relying on `setTimeout` will also be susceptible to timing inaccuracies upon resizing of the window and other events.
+When programming a metronome with JavaScript, the function we would normally reach for might be `setInterval`. Unfortunately, `setInterval` on its own is unable to keep time that is consistent enough for practice due to the fact that `setTimeout` and `setInterval` time can be influenced by other processes in the Javascript event loop. . Even without musical training, our ears can hear differences in the milliseconds, and `setTimeout` can be off by at least 40ms. A metronome relying on `setTimeout` will also be susceptible to timing inaccuracies upon resizing of the window and other events.
 
 In order to keep accurate time, `setTimeout` is instead responsible for scheduling upcoming audio events using Web Audio API's `currentTime` method. The `currentTime` is a highly accurate "property representing a hardware timestamp" [according to MDN](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/currentTime), and can have accuracy down to **20us** (microseconds) and lower.
 
