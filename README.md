@@ -36,7 +36,7 @@ Install and run this app locally on your machine.
 
 ## Observations
 
-When programming a metronome with JavaScript, the function we would normally reach for might be `setInterval`. Unfortunately, `setInterval` on its own is unable to keep time that is consistent enough for practice due to the fact that `setTimeout` and `setInterval` time can be influenced by other processes in the Javascript event loop. . Even without musical training, our ears can hear differences in the milliseconds, and `setTimeout` can be off by at least 40ms. A metronome relying on `setTimeout` will also be susceptible to timing inaccuracies upon resizing of the window and other events.
+When programming a metronome with JavaScript, the function we would normally reach for might be `setInterval`. Unfortunately, `setInterval` on its own is unable to keep time that is consistent enough for practice due to the fact that `setTimeout` and `setInterval` time can be influenced by other processes in the Javascript event loop. Even without musical training, our ears can hear differences in the milliseconds, and `setTimeout` can be off by at least 40ms. A metronome relying on `setTimeout` will also be susceptible to timing inaccuracies upon resizing of the window and other events.
 
 In order to keep accurate time, `setTimeout` is instead responsible for scheduling upcoming audio events using Web Audio API's `currentTime` method. The `currentTime` is a highly accurate "property representing a hardware timestamp" [according to MDN](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/currentTime), and can have accuracy down to **20us** (microseconds) and lower.
 
